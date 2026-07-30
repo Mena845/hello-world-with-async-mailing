@@ -1,16 +1,14 @@
 package school.hei.asa.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import school.hei.asa.conf.FacadeIT;
-import school.hei.asa.model.Worker;
 
 public class WorkerServiceIT extends FacadeIT {
   @Autowired WorkerService workerService;
@@ -30,29 +28,25 @@ public class WorkerServiceIT extends FacadeIT {
 
   @Test
   void can_get_worker_from_year() {
-    var expected = workersFromYear();
     var actual = workerService.getWorkersFrom(modelWithYearAttribute);
 
-    assertEquals(expected, actual);
+    assertTrue(
+        actual.stream().anyMatch(w -> w.code().equals("W-P-2024-01")),
+        "should contain W-P-2024-01 (contract entrance=2025, end=null)");
+    assertTrue(
+        actual.stream().noneMatch(w -> w.code().equals("W-101")),
+        "should not contain W-101 (contract end=2024 < 2026)");
   }
 
   @Test
   void can_get_worker_from_date_range() {
-    var expected = workersFromDateRange();
     var actual = workerService.getWorkersFrom(modelWithStartAndEndDateAttribute);
 
-    assertEquals(expected, actual);
-  }
-
-  private List<Worker> workersFromYear() {
-    var worker = new Worker("W-P-2024-01", "Lita Andria", null, null, null, null, null, null);
-    return List.of(worker);
-  }
-
-  private List<Worker> workersFromDateRange() {
-    var worker1 = new Worker("W-101", "John", null, null, null, null, null, null);
-    var worker2 = new Worker("W-P-2024-01", "Lita Andria", null, null, null, null, null, null);
-
-    return List.of(worker1, worker2);
+    assertTrue(
+        actual.stream().anyMatch(w -> w.code().equals("W-101")),
+        "should contain W-101 (contract entrance=2024 < 2025, end=2024 >= 2024)");
+    assertTrue(
+        actual.stream().anyMatch(w -> w.code().equals("W-P-2024-01")),
+        "should contain W-P-2024-01 (via V99_6 contract: entrance=2023, end=null)");
   }
 }

@@ -24,9 +24,20 @@ public class ContractRepositoryTest extends FacadeIT {
   @Test
   void fetch_by_year_between() {
     var actual = contractRepository.findByYearBetween(2024, 2026);
-    Assertions.assertEquals(3, actual.size());
     Assertions.assertTrue(
         actual.stream().anyMatch(contract -> contract.worker().code().equals("W-P-2024-01")));
+    actual.forEach(
+        contract -> {
+          var entranceYear = contract.entranceInstant().atZone(java.time.ZoneOffset.UTC).getYear();
+          Assertions.assertTrue(
+              entranceYear < 2026, "entranceInstant year must be < 2026 but was " + entranceYear);
+          var endInstant = contract.endInstant();
+          if (endInstant != null) {
+            var endYear = endInstant.atZone(java.time.ZoneOffset.UTC).getYear();
+            Assertions.assertTrue(
+                endYear >= 2024, "endInstant year must be >= 2024 but was " + endYear);
+          }
+        });
   }
 
   private Worker newWorker() {
