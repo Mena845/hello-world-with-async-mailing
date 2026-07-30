@@ -14,7 +14,7 @@ plugins {
 }
 
 jacoco {
-    toolVersion = "0.8.11"
+    toolVersion = "0.8.13"
 }
 
 
@@ -42,6 +42,7 @@ configurations {
 test {
     maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
     useJUnitPlatform()
+    systemProperty 'user.timezone', 'UTC'
     finalizedBy jacocoTestCoverageVerification
 }
 

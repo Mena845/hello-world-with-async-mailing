@@ -1,6 +1,8 @@
 package school.hei.asa.repository;
 
 import jakarta.transaction.Transactional;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
@@ -38,7 +40,9 @@ public class WorkerRepository {
 
   @Transactional
   public List<Worker> findByYearBetween(int startYear, int endYear) {
-    return jWorkerRepository.findByYearBetween(startYear, endYear).stream()
+    var from = LocalDate.of(startYear, 1, 1).atStartOfDay(ZoneOffset.UTC).toInstant();
+    var to = LocalDate.of(endYear, 1, 1).atStartOfDay(ZoneOffset.UTC).toInstant();
+    return jWorkerRepository.findByYearBetween(from, to).stream()
         .map(workerMapper::toDomain)
         .toList();
   }

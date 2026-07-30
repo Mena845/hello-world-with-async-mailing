@@ -1,6 +1,8 @@
 package school.hei.asa.repository;
 
 import jakarta.transaction.Transactional;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
@@ -39,8 +41,9 @@ public class ContractRepository {
   }
 
   public List<Contract> findByYearBetween(int startYearIncluded, int endYearExcluded) {
-    return contractMapper.toDomain(
-        jContractRepository.findByYearBetween(startYearIncluded, endYearExcluded));
+    var from = LocalDate.of(startYearIncluded, 1, 1).atStartOfDay(ZoneOffset.UTC).toInstant();
+    var to = LocalDate.of(endYearExcluded, 1, 1).atStartOfDay(ZoneOffset.UTC).toInstant();
+    return contractMapper.toDomain(jContractRepository.findByYearBetween(from, to));
   }
 
   public List<Contract> findByYear(int year) {

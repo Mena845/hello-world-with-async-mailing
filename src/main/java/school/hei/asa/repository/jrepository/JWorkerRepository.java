@@ -1,5 +1,6 @@
 package school.hei.asa.repository.jrepository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,8 +21,8 @@ public interface JWorkerRepository extends JpaRepository<JWorker, String> {
       """
 SELECT distinct w FROM JWorker w
 JOIN JContract c ON c.worker = w
-WHERE ((EXTRACT(YEAR FROM c.endInstant) >= ?1) or (c.endInstant is null))
-AND (EXTRACT(year from c.entranceInstant) < ?2)
+WHERE ((c.endInstant >= :from) or (c.endInstant is null))
+AND (c.entranceInstant < :to)
 """)
-  List<JWorker> findByYearBetween(int startYear, int endYear);
+  List<JWorker> findByYearBetween(Instant from, Instant to);
 }
