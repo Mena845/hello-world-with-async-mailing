@@ -18,7 +18,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = false)
 @ToString
 public class NearOverdueReportNotificationRequested extends PojaEvent {
-  private LocalDate verificationDate = now();
+  @Builder.Default private LocalDate verificationDate = now();
 
   @Override
   public Duration maxConsumerDuration() {
