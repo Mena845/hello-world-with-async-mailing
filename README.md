@@ -1,42 +1,50 @@
-# poja-async-mailing-template — async email workers for Spring Boot
+# Asa - Work Management Tool
 
-A [Poja](https://poja.io) starter template with **SQS-powered async email sending** pre-configured. Define an event, wire a consumer, push — no queue infrastructure to manage.
+## Features
+- Explore all missions across your organizations by products
+- Identify care missions like days off, sick days and team building events
+- Daily track your time by mission
+- Track throughout the year who worked on same missions with you
+- Let your coworkers know when you will not be available
 
-→ **[Full guide on docs.poja.io](https://docs.poja.io/docs/hello-world-but-with-asynchronous-reply-by-email)**
+## Running
 
-Or hit the `Deploy to Poja` button to **deploy this template on your account** : 
+### On cloud, using Poja
 
+Asa runs on [Poja](https://docs.poja.io/docs). It's the best way we know to host Spring Boot applications.
+Within a few clicks, you have your Spring Boot running with a publicly accessible URL, and with your CI/CD pipelines automatically configured on Github.
+### Locally
 
-[![Deploy on Poja](https://img.shields.io/badge/Deploy%20On%20Poja-007BFF?style=for-the-badge)](https://console.poja.io/applications/create/clone/?templateId=84df308f-8da6-4b70-a83f-0b146b1b8e5f)
-
----
-
-### What you get
-
-Two classes to write. Poja handles the queue, the worker, and the retries.
-
-```java
-// 1. The event — in endpoint.event.model
-public class SendEmailRequested extends PojaEvent {
-  private String to;
-
-  @Override public Duration maxConsumerDuration() { return Duration.ofSeconds(45); }
-  @Override public Duration maxConsumerBackoffBetweenRetries() { return Duration.ofSeconds(30); }
-}
-
-// 2. The consumer — in service.event (must be named {EventName}Service)
-@Service @AllArgsConstructor
-public class SendEmailRequestedService implements Consumer<SendEmailRequested> {
-  private final Mailer mailer;
-
-  @Override
-  public void accept(SendEmailRequested event) {
-    mailer.accept(new Email(new InternetAddress(event.getTo()),
-        List.of(), List.of(), "Subject", "Body", List.of()));
-  }
-}
+First, set all following environment variables:
+```
+ASA_LOGOUT_URL=
+AWS_SES_SOURCE=
+CASDOOR_LOGOUT_URL=
+SERVER_ERROR_INCLUDEMESSAGE=
+SPRING_DATASOURCE_PASSWORD=
+SPRING_DATASOURCE_URL=
+SPRING_DATASOURCE_USERNAME=
+SPRING_FLYWAY_OUTOFORDER=
+SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_CASDOOR_ISSUERURI=
+SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_CASDOOR_USERNAMEATTRIBUTE=
+SPRING_SECURITY_OAUTH2_CLIENT_REDIRECTURI=
+SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_CASDOOR_CLIENTID=
+SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_CASDOOR_CLIENTSECRET=
+SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_CASDOOR_SCOPE_0_=
+SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_CASDOOR_SCOPE_1_=
+SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_CASDOOR_SCOPE_2_=
+ASA_CARE_PRODUCT_CODE=
+ASA_PAID_CARE_MISSION_CODES=
+SENSITIVE_WORKERS_CODES=
+MAX_LATENESS_REPORT=
 ```
 
-Produce the event from any controller — Poja routes it to the worker automatically.
+Then, run Spring Boot as usual,
+for example by building an uber jar through `gradle bootJar`,
+then by launching `java -jar asa.jar`
+(here is an Uber Jar we built: [v1](https://drive.google.com/file/d/1oo5eESgdkDTnuQo0GBZFVbPkRpKfonqG/view?usp=sharing)).
+As there are a lot of environment variables to set,
+you probably want to load them through an `.env` file:
+`export $(cat .env | xargs) && java -jar asa.jar`.
 
-> Part of the [Poja platform](https://poja.io) — deploy Spring Boot in minutes.
+Last, visit `http://localhost:8080`
